@@ -1,0 +1,188 @@
+import re
+from collections import defaultdict
+
+# Define atomic masses of common elements (you can add more elements if needed)
+atomic_masses = {
+    'H': 1.008,
+    'He': 4.0026,
+    'Li': 6.94,
+    'Be': 9.0122,
+    'B': 10.81,
+    'C': 12.01,
+    'N': 14.01,
+    'O': 16.00,
+    'F': 19.00,
+    'Ne': 20.18,
+    'Na': 22.99,
+    'Mg': 24.31,
+    'Al': 26.98,
+    'Si': 28.09,
+    'P': 30.97,
+    'S': 32.06,
+    'Cl': 35.45,
+    'K': 39.10,
+    'Ar': 39.95,
+    'Ca': 40.08,
+    'Sc': 44.96,
+    'Ti': 47.87,
+    'V': 50.94,
+    'Cr': 52.00,
+    'Mn': 54.94,
+    'Fe': 55.85,
+    'Co': 58.93,
+    'Ni': 58.69,
+    'Cu': 63.55,
+    'Zn': 65.38,
+    'Ga': 69.72,
+    'Ge': 72.63,
+    'As': 74.92,
+    'Se': 78.96,
+    'Br': 79.90,
+    'Kr': 83.80,
+    'Rb': 85.47,
+    'Sr': 87.62,
+    'Y': 88.91,
+    'Zr': 91.22,
+    'Nb': 92.91,
+    'Mo': 95.95,
+    'Tc': 98.00,
+    'Ru': 101.1,
+    'Rh': 102.9,
+    'Pd': 106.4,
+    'Ag': 107.9,
+    'Cd': 112.4,
+    'In': 114.8,
+    'Sn': 118.7,
+    'Sb': 121.8,
+    'Te': 127.6,
+    'I': 126.9,
+    'Xe': 131.3,
+    'Cs': 132.9,
+    'Ba': 137.3,
+    'La': 138.9,
+    'Ce': 140.1,
+    'Pr': 140.9,
+    'Nd': 144.2,
+    'Pm': 145.0,
+    'Sm': 150.4,
+    'Eu': 152.0,
+    'Gd': 157.3,
+    'Tb': 158.9,
+    'Dy': 162.5,
+    'Ho': 164.9,
+    'Er': 167.3,
+    'Tm': 168.9,
+    'Yb': 173.0,
+    'Lu': 175.0,
+    'Hf': 178.5,
+    'Ta': 180.9,
+    'W': 183.8,
+    'Re': 186.2,
+    'Os': 190.2,
+    'Ir': 192.2,
+    'Pt': 195.1,
+    'Au': 197.0,
+    'Hg': 200.6,
+    'Tl': 204.4,
+    'Pb': 207.2,
+    'Bi': 208.9,
+    'Po': 209.0,
+    'At': 210.0,
+    'Rn': 222.0,
+    'Fr': 223.0,
+    'Ra': 226.0,
+    'Ac': 227.0,
+    'Th': 232.0,
+    'Pa': 231.0,
+    'U': 238.0,
+    'Np': 237.0,
+    'Pu': 244.0,
+    'Am': 243.0,
+    'Cm': 247.0,
+    'Bk': 247.0,
+    'Cf': 251.0,
+    'Es': 252.0,
+    'Fm': 257.0,
+    'Md': 258.0,
+    'No': 259.0,
+    'Lr': 262.0,
+    'Rf': 267.0,
+    'Db': 270.0,
+    'Sg': 271.0,
+    'Bh': 270.0,
+    'Hs': 277.0,
+    'Mt': 276.0,
+    'Ds': 281.0,
+    'Rg': 282.0,
+    'Cn': 285.0,
+    'Nh': 286.0,
+    'Fl': 289.0,
+    'Mc': 290.0,
+    'Lv': 293.0,
+    'Ts': 294.0,
+    'Og': 294.0
+}
+
+def parse_formula(formula):
+    """Parse chemical formula into elements and their counts."""
+    pattern = r'([A-Z][a-z]*)(\d*)'
+    matches = re.findall(pattern, formula)
+    elements = defaultdict(int)
+    for element, count in matches:
+        if count == '':
+            count = 1
+        else:
+            count = int(count)
+        elements[element] += count
+    return elements
+
+def calculate_molar_mass(elements):
+    """Calculate the molar mass of the compound."""
+    molar_mass = 0.0
+    for element, count in elements.items():
+        molar_mass += atomic_masses[element] * count
+    return molar_mass
+
+def calculate_mass_fractions(elements, molar_mass):
+    """Calculate mass fractions of each element."""
+    mass_fractions = {}
+    for element, count in elements.items():
+        mass_fractions[element] = (atomic_masses[element] * count) / molar_mass
+    return mass_fractions
+
+def main():
+    # Input number of fuels in the mixture
+    num_fuels = int(input("Enter the number of fuels in the mixture: "))
+
+    # Initialize the total mass fractions dictionary
+    total_mass_fractions = defaultdict(float)
+
+    # Loop through each fuel and calculate its contribution
+    for _ in range(num_fuels):
+        formula = input("Enter the chemical formula: ")
+        fraction = float(input("Enter the fraction of this fuel in the mixture (as a decimal): "))
+
+        # Parse formula
+        elements = parse_formula(formula)
+
+        # Calculate molar mass
+        molar_mass = calculate_molar_mass(elements)
+
+        # Calculate mass fractions
+        mass_fractions = calculate_mass_fractions(elements, molar_mass)
+
+        # Add to total mass fractions
+        for element, mass_fraction in mass_fractions.items():
+            total_mass_fractions[element] += mass_fraction * fraction
+
+    # Normalize total mass fractions to ensure they sum to 1
+    total_fraction = sum(total_mass_fractions.values())
+    normalized_mass_fractions = {element: mass_fraction / total_fraction for element, mass_fraction in total_mass_fractions.items()}
+
+    # Display results
+    print("Normalized mass fractions of elements in the mixture:")
+    for element, fraction in normalized_mass_fractions.items():
+        print(f"{element}: {fraction:.4f}")
+
+if __name__ == "__main__":
+    main()
